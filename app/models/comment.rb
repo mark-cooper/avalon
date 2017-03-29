@@ -65,13 +65,4 @@ class Comment
     false
   end
 
-  def to_h
-    {
-      name: name,
-      subject: subject,
-      email: email,
-      nickname: nickname,
-      comment: comment
-    }
-  end
 end
