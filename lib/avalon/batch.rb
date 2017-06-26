@@ -30,7 +30,8 @@ module Avalon
         result = []
         begin
           Timeout.timeout(5) do
-            status = `/usr/sbin/lsof -Fcpan0 #{args}`
+            lsof_path = which('lsof')
+            status = `#{lsof_path} -Fcpan0 #{args}`
             statuses = status.split(/[\u0000\n]+/)
             statuses.in_groups_of(4) do |group|
               file_status = Hash[group.compact.collect { |s| [s[0].to_sym,s[1..-1]] }]
@@ -49,6 +50,20 @@ module Avalon
         end
         result
       end
+    end
+
+    private
+
+    # https://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
+    def self.which(cmd)
+      exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+      ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
+        exts.each { |ext|
+          exe = File.join(path, "#{cmd}#{ext}")
+          return exe if File.executable?(exe) && !File.directory?(exe)
+        }
+      end
+      nil
     end
 
   end
